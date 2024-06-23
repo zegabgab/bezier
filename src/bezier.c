@@ -30,3 +30,28 @@ BezierPoint2D bezier_evaluate(
     }
     return intermediatePoints[0];
 }
+
+BezierPoint2D *bezier_bulk(
+        size_t controlPointCount,
+        const BezierPoint2D *controlPoints,
+        size_t resultPointCount,
+        BezierPoint2D *result) {
+    for (size_t i = 0; i < resultPointCount; i++) {
+        result[i] = bezier_evaluate(
+                controlPointCount, controlPoints, ((double) i) / (double) (resultPointCount - 1));
+    }
+    return result;
+}
+
+BezierCurve *bezier_compile(size_t count, const BezierPoint2D *points, BezierCurve *curve) {
+    BezierPoint2D *compiledPoints = malloc(count * sizeof(BezierPoint2D));
+    if (!compiledPoints) {
+        return NULL;
+    }
+    // TODO actually compile the polynomial
+    (void) points;
+    free(compiledPoints);
+    curve->count = 0;
+    curve->coeffs = NULL;
+    return curve;
+}
