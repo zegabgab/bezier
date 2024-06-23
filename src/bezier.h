@@ -28,8 +28,6 @@ BezierPoint2D *bezier_bulk(
         size_t resultPointCount,
         BezierPoint2D *result);
 
-BezierCurve *bezier_compile(size_t count, const BezierPoint2D *points, BezierCurve *curve);
-
 #ifdef __cplusplus
 }
 #endif

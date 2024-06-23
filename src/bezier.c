@@ -42,16 +42,3 @@ BezierPoint2D *bezier_bulk(
     }
     return result;
 }
-
-BezierCurve *bezier_compile(size_t count, const BezierPoint2D *points, BezierCurve *curve) {
-    BezierPoint2D *compiledPoints = malloc(count * sizeof(BezierPoint2D));
-    if (!compiledPoints) {
-        return NULL;
-    }
-    // TODO actually compile the polynomial
-    (void) points;
-    free(compiledPoints);
-    curve->count = 0;
-    curve->coeffs = NULL;
-    return curve;
-}
