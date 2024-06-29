@@ -1,5 +1,8 @@
 CC = gcc
-CFLAGS = -Wall
+DEBUG = -g
+DEPS = gtk4
+CFLAGS = -Wall $(DEBUG) $(shell pkg-config --cflags $(DEPS))
+LDFLAGS = $(shell pkg-config --libs $(DEPS))
 SRC = src
 TARGET = target
 OBJ = $(TARGET)/obj
@@ -18,7 +21,7 @@ main: $(MAIN)
 
 $(MAIN): $(OBJS)
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
 $(OBJ)/%.o: $(SRC)/%.c
 	@mkdir -p $(@D)
