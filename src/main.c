@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     g_signal_connect(app, "activate", G_CALLBACK(apply), argc > 1 ? argv[1] : "Default title");
-    int exit_status = g_application_run(G_APPLICATION(app), argc, argv);
+    int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);
     g_object_unref(app);
     return exit_status;
 }
