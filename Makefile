@@ -21,7 +21,7 @@ main: $(MAIN)
 
 $(MAIN): $(OBJS)
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 $(OBJ)/%.o: $(SRC)/%.c
 	@mkdir -p $(@D)
