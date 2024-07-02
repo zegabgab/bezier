@@ -26,5 +26,12 @@ int main(int argc, char **argv) {
     g_signal_connect(app, "activate", G_CALLBACK(apply), argc > 1 ? argv[1] : "Default title");
     int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);
     g_object_unref(app);
+
+    if (exit_status == 0) {
+        printf("App closed successfully!\n");
+    } else {
+        fprintf(stderr, "App exited with code %d\n", exit_status);
+    }
+
     return exit_status;
 }
