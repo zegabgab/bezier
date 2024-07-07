@@ -1,6 +1,6 @@
 CC = gcc
 DEBUG = -g
-DEPS = gtk4
+DEPS = $(shell cat .libs)
 CFLAGS = -Wall $(DEBUG) $(shell pkg-config --cflags $(DEPS))
 LDFLAGS = $(shell pkg-config --libs $(DEPS))
 SRC = src
