@@ -39,23 +39,27 @@ static void draw_function(
         int width,
         int height,
         gpointer data) {
+    (void) area;
     (void) data;
-    GdkRGBA color;
-    static const int CONTROLS = 4;
+    static const int CONTROLS = 5;
     BezierPoint2D controlPoints[CONTROLS];
-    static const int RESOLUTION = 50;
-    BezierPoint2D results[RESOLUTION];
+    static const int RESOLUTION = 1000;
 
-    controlPoints[0].posX = 50;
-    controlPoints[0].posY = 50;
-    controlPoints[1].posX = 0;
-    controlPoints[1].posY = 0;
-    controlPoints[2].posX = 100;
-    controlPoints[2].posY = 0;
-    controlPoints[3].posX = 200;
-    controlPoints[3].posY = 100;
+    controlPoints[0].posX = width;
+    controlPoints[0].posY = 0;
+    controlPoints[1].posX = width * 2 / 3.;
+    controlPoints[1].posY = height / 3.;
+    controlPoints[2].posX = width;
+    controlPoints[2].posY = height;
+    controlPoints[3].posX = 0;
+    controlPoints[3].posY = height * 2 / 3.;
+    controlPoints[4].posX = 0;
+    controlPoints[4].posY = 0;
 
-    draw_curve(cro, CONTROLS, controlPoints, 50);
+    cairo_set_source_rgb(cro, 0, 0, 0);
+    draw_points(cro, CONTROLS, controlPoints);
+    cairo_set_source_rgb(cro, 0.8, 0., 0.8);
+    draw_curve(cro, CONTROLS, controlPoints, RESOLUTION);
 }
 
 static void print_hello(GtkWidget *widget, gpointer data) {
@@ -80,20 +84,17 @@ static void add_area(GtkBox *box) {
 static GtkWidget *button_box(GtkWindow *window) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     if (!box) {
-        fprintf(stderr, "Box could not be created\n");
         return box;
     }
 
-    GtkWidget *button = gtk_button_new_with_label("this is a hello");
+    GtkWidget *button = gtk_button_new_with_label("New curve");
     if (!button) {
-        fprintf(stderr, "Button could not be created\n");
         return box;
     }
     gtk_box_append(GTK_BOX(box), button);
 
-    GtkWidget *quit = gtk_button_new_with_label("this is a quit");
+    GtkWidget *quit = gtk_button_new_with_label("Quit");
     if (!quit) {
-        fprintf(stderr, "Quit button could not be created\n");
         return box;
     }
     gtk_box_append(GTK_BOX(box), quit);
@@ -107,17 +108,15 @@ static GtkWidget *button_box(GtkWindow *window) {
     return box;
 }
 
-static void apply(GtkApplication *app, gpointer data) {
+static void activate(GtkApplication *app, gpointer data) {
     char *title = (char*) data;
     GtkWidget *window = gtk_application_window_new(app);
     if (!window) {
-        fprintf(stderr, "Window could not be created\n");
         return;
     }
 
     GtkWidget *buttons = button_box(GTK_WINDOW(window));
     if (!buttons) {
-        fprintf(stderr, "Buttons could not be created\n");
         return;
     }
 
@@ -137,14 +136,12 @@ static void apply(GtkApplication *app, gpointer data) {
 }
 
 int main(int argc, char **argv) {
-    printf("Starting %s\n", argv[0]);
     GtkApplication *app = gtk_application_new("gabel.bezier", G_APPLICATION_FLAGS_NONE);
     if (!app) {
-        fprintf(stderr, "Application could not be created\n");
         return 1;
     }
     char *title = argc > 1 ? argv[1] : "Bezier";
-    g_signal_connect(app, "activate", G_CALLBACK(apply), title);
+    g_signal_connect(app, "activate", G_CALLBACK(activate), title);
     int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);
     g_object_unref(app);
 
