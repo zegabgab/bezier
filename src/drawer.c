@@ -80,3 +80,19 @@ int bezier_drawer_edit_last(BezierDrawer *drawer, BezierPoint2D point) {
     return 0;
 }
 
+void bezier_curve_cleanup(BezierCurve2D *curve) {
+    free(curve->controls);
+    curve->count = 0;
+    curve->capacity = 0;
+    curve->controls = NULL;
+}
+
+void bezier_drawer_cleanup(BezierDrawer *drawer) {
+    for (size_t i = 0; i < drawer->count; i++) {
+        bezier_curve_cleanup(drawer->curves + i);
+    }
+    free(drawer->curves);
+    drawer->count = 0;
+    drawer->capacity = 0;
+    drawer->curves = NULL;
+}

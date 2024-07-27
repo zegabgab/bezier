@@ -2,6 +2,7 @@
 #include <gtk/gtk.h>
 
 #include "bezier.h"
+#include "drawer.h"
 
 static void draw_points(cairo_t *cro, size_t count, BezierPoint2D *points) {
     if (count <= 1) {

@@ -32,6 +32,10 @@ int bezier_curve_add_point(BezierCurve2D *curve, BezierPoint2D point);
 
 int bezier_drawer_edit_last(BezierDrawer *drawer, BezierPoint2D point);
 
+void bezier_curve_cleanup(BezierCurve2D *curve);
+
+void bezier_drawer_cleanup(BezierDrawer *drawer);
+
 #ifdef __cplusplus
 }
 #endif
