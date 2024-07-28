@@ -1,6 +1,7 @@
 #include <errno.h>
 
 #include "drawer.h"
+#include "arrays.h"
 
 #define DEFAULT_RESOLUTION 100
 
@@ -31,13 +32,11 @@ int bezier_drawer_draw(BezierDrawer *drawer, size_t index, cairo_t *cro) {
 
 int bezier_drawer_new_curve(BezierDrawer *drawer) {
     if (drawer->count >= drawer->capacity) {
-        BezierCurve2D *new_curves =
-            realloc(drawer->curves, 2 * drawer->capacity * sizeof(BezierCurve2D));
-        if (!new_curves) {
-            return errno;
+        int error;
+        DOUBLE_CAPACITY(drawer->curves, drawer->capacity, error);
+        if (error != 0) {
+            return error;
         }
-        drawer->curves = new_curves;
-        drawer->capacity *= 2;
     }
 
     static const unsigned int INITIAL_CAPACITY = 4;
@@ -57,13 +56,11 @@ int bezier_drawer_new_curve(BezierDrawer *drawer) {
 
 int bezier_curve_add_point(BezierCurve2D *curve, BezierPoint2D point) {
     if (curve->count >= curve->capacity) {
-        BezierPoint2D *new_controls =
-            realloc(curve->controls, 2 * curve->capacity * sizeof(BezierPoint2D));
-        if (!new_controls) {
-            return errno;
+        int error;
+        DOUBLE_CAPACITY(curve->controls, curve->capacity, error);
+        if (error != 0) {
+            return error;
         }
-        curve->controls = new_controls;
-        curve->capacity *= 2;
     }
 
     curve->controls[curve->count++] = point;

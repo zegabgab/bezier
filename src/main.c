@@ -41,7 +41,7 @@ static void draw_function(
         int height,
         gpointer data) {
     (void) area;
-    (void) data;
+    BezierDrawer *drawer = data;
     static const int CONTROLS = 5;
     BezierPoint2D controlPoints[CONTROLS];
     static const int RESOLUTION = 1000;
@@ -141,7 +141,17 @@ int main(int argc, char **argv) {
     if (!app) {
         return 1;
     }
+
+    static const int INITIAL_CAPACITY = 8;
     char *title = argc > 1 ? argv[1] : "Bezier";
+    BezierDrawer drawer = {
+        .curves = malloc(INITIAL_CAPACITY * sizeof(BezierCurve2D)),
+        .count = 0,
+        .capacity = INITIAL_CAPACITY,
+    };
+
+    bezier_drawer_new_curve(&drawer);
+
     g_signal_connect(app, "activate", G_CALLBACK(activate), title);
     int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);
     g_object_unref(app);
