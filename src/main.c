@@ -4,6 +4,15 @@
 #include "bezier.h"
 #include "drawer.h"
 
+struct AppData {
+    BezierDrawer drawer;
+    char *title;
+};
+
+static void appdata_cleanup(struct AppData *data) {
+    bezier_drawer_cleanup(&data->drawer);
+}
+
 static void draw_points(cairo_t *cro, size_t count, BezierPoint2D *points) {
     if (count <= 1) {
         return;
@@ -69,6 +78,31 @@ static void print_hello(GtkWidget *widget, gpointer data) {
     g_print("helloooo\n");
 }
 
+static void print_coords(
+        GtkEventControllerMotion *self,
+        gdouble x,
+        gdouble y,
+        gpointer data) {
+    (void) self;
+    (void) data;
+    g_print("Mouse entered at (%f, %f)\n", x, y);
+}
+
+static void print_leave(
+        GtkEventControllerMotion *self,
+        gpointer data) {
+    (void) self;
+    (void) data;
+    g_print("Mouse left\n");
+}
+
+static GtkEventController *paint_controller() {
+    GtkEventController *controller = gtk_event_controller_motion_new();
+    g_signal_connect(controller, "enter", G_CALLBACK(print_coords), NULL);
+    g_signal_connect(controller, "leave", G_CALLBACK(print_leave), NULL);
+    return controller;
+}
+
 static void add_area(GtkBox *box) {
     GtkWidget *area = gtk_drawing_area_new();
     if (!area) {
@@ -80,6 +114,10 @@ static void add_area(GtkBox *box) {
     gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(area), AREA_SIZE);
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area), draw_function, NULL, NULL);
     gtk_box_append(box, area);
+
+    GtkEventController *painter = paint_controller();
+    
+    gtk_widget_add_controller(area, painter);
 }
 
 static GtkWidget *button_box(GtkWindow *window) {
@@ -110,7 +148,8 @@ static GtkWidget *button_box(GtkWindow *window) {
 }
 
 static void activate(GtkApplication *app, gpointer data) {
-    char *title = (char*) data;
+    struct AppData *appData = data;
+    char *title = appData->title;
     GtkWidget *window = gtk_application_window_new(app);
     if (!window) {
         return;
@@ -143,7 +182,6 @@ int main(int argc, char **argv) {
     }
 
     static const int INITIAL_CAPACITY = 8;
-    char *title = argc > 1 ? argv[1] : "Bezier";
     BezierDrawer drawer = {
         .curves = malloc(INITIAL_CAPACITY * sizeof(BezierCurve2D)),
         .count = 0,
@@ -152,9 +190,13 @@ int main(int argc, char **argv) {
 
     bezier_drawer_new_curve(&drawer);
 
-    g_signal_connect(app, "activate", G_CALLBACK(activate), title);
+    char *title = argc > 1 ? argv[1] : "Bezier";
+    struct AppData data = { .drawer = drawer, .title = title };
+
+    g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
     int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);
     g_object_unref(app);
+    appdata_cleanup(&data);
 
     return exit_status;
 }
