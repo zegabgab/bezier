@@ -1,2 +1,1 @@
-make
-target/bin/bezier "$@"
+if make; then target/bin/bezier "$@"; fi
