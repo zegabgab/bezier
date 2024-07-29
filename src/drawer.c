@@ -5,7 +5,7 @@
 
 #define DEFAULT_RESOLUTION 100
 
-static void draw_curve(BezierCurve2D *curve, cairo_t *cro) {
+static void draw_curve(BezierDrawableCurve2D *curve, cairo_t *cro) {
     if (curve->resolution < 2) {
         return;
     }
@@ -24,7 +24,7 @@ int bezier_drawer_draw(BezierDrawer *drawer, size_t index, cairo_t *cro) {
         return 1;
     }
 
-    BezierCurve2D *curve = drawer->curves + index;
+    BezierDrawableCurve2D *curve = drawer->curves + index;
     draw_curve(curve, cro);
     
     return 0;
@@ -40,7 +40,7 @@ int bezier_drawer_new_curve(BezierDrawer *drawer) {
     }
 
     static const unsigned int INITIAL_CAPACITY = 4;
-    BezierCurve2D curve = {
+    BezierDrawableCurve2D curve = {
         .controls = malloc(INITIAL_CAPACITY * sizeof(BezierPoint2D)),
         .count = 0,
         .capacity = INITIAL_CAPACITY,
@@ -54,7 +54,7 @@ int bezier_drawer_new_curve(BezierDrawer *drawer) {
     return 0;
 }
 
-int bezier_curve_add_point(BezierCurve2D *curve, BezierPoint2D point) {
+int bezier_curve_add_point(BezierDrawableCurve2D *curve, BezierPoint2D point) {
     if (curve->count >= curve->capacity) {
         int error;
         DOUBLE_CAPACITY(curve->controls, curve->capacity, error);
@@ -72,12 +72,12 @@ int bezier_drawer_edit_last(BezierDrawer *drawer, BezierPoint2D point) {
         return 1;
     }
 
-    BezierCurve2D *curve = drawer->curves + drawer->count - 1;
+    BezierDrawableCurve2D *curve = drawer->curves + drawer->count - 1;
     curve->controls[curve->count - 1] = point;
     return 0;
 }
 
-void bezier_curve_cleanup(BezierCurve2D *curve) {
+void bezier_curve_cleanup(BezierDrawableCurve2D *curve) {
     free(curve->controls);
     curve->count = 0;
     curve->capacity = 0;

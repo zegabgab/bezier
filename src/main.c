@@ -56,7 +56,7 @@ static void draw_function(
     BezierDrawer *drawer = &appData->drawer;
 
     for (int i = 0; i < drawer->count; i++) {
-        BezierCurve2D *curve = drawer->curves + i;
+        BezierDrawableCurve2D *curve = drawer->curves + i;
         cairo_set_source_rgb(cro, 0, 0, 0);
         draw_points(cro, curve->count, curve->controls);
         cairo_set_source_rgb(cro, 0.8, 0., 0.8);
