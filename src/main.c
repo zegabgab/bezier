@@ -54,7 +54,6 @@ static void draw_function(
     (void) area;
     struct AppData *appData = data;
     BezierDrawer *drawer = &appData->drawer;
-    static const int CONTROLS = 5;
 
     for (int i = 0; i < drawer->count; i++) {
         BezierCurve2D *curve = drawer->curves + i;
@@ -63,11 +62,6 @@ static void draw_function(
         cairo_set_source_rgb(cro, 0.8, 0., 0.8);
         draw_curve(cro, curve->count, curve->controls, curve->resolution);
     }
-
-    static const double RADIUS = 50;
-    cairo_set_source_rgb(cro, 0, 0, 0.7);
-    cairo_arc(cro, appData->mouse.posX, appData->mouse.posY, RADIUS, 0, 2 * G_PI);
-    cairo_fill(cro);
 }
 
 static void print_motion(
@@ -78,6 +72,7 @@ static void print_motion(
     (void) self;
     struct AppData *appData = data;
     appData->mouse = (BezierPoint2D) { .posX = x, .posY = y };
+    bezier_drawer_edit_last(&appData->drawer, appData->mouse);
     gtk_widget_queue_draw(GTK_WIDGET(appData->area));
 }
 
@@ -85,6 +80,28 @@ static GtkEventController *paint_controller(struct AppData *data) {
     GtkEventController *controller = gtk_event_controller_motion_new();
     g_signal_connect(controller, "motion", G_CALLBACK(print_motion), data);
     return controller;
+}
+
+static void add_point(
+        GtkGestureClick *self,
+        int n_press,
+        double x,
+        double y,
+        struct AppData *data) {
+    (void) self;
+    (void) n_press;
+    data->mouse = (BezierPoint2D) { .posX = x, .posY = y };
+    bezier_curve_add_point(data->drawer.curves + data->drawer.count - 1, data->mouse);
+    gtk_widget_queue_draw(GTK_WIDGET(data->area));
+}
+
+static GtkGesture *click_controller(struct AppData *data) {
+    GtkGesture *click = gtk_gesture_click_new();
+    if (!click) {
+        return NULL;
+    }
+    g_signal_connect(click, "pressed", G_CALLBACK(add_point), data);
+    return click;
 }
 
 static void add_area(GtkBox *box, struct AppData *data) {
@@ -101,8 +118,9 @@ static void add_area(GtkBox *box, struct AppData *data) {
     gtk_box_append(box, area);
 
     GtkEventController *painter = paint_controller(data);
-    
     gtk_widget_add_controller(area, painter);
+    GtkGesture *click = click_controller(data);
+    gtk_widget_add_controller(area, GTK_EVENT_CONTROLLER(click));
 }
 
 static GtkWidget *new_curve_button(struct AppData *data) {
@@ -174,14 +192,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    static const int INITIAL_CAPACITY = 8;
     BezierDrawer drawer = {
-        .curves = malloc(INITIAL_CAPACITY * sizeof(BezierCurve2D)),
+        .curves = NULL,
         .count = 0,
-        .capacity = INITIAL_CAPACITY,
+        .capacity = 0,
     };
-
-    bezier_drawer_new_curve(&drawer);
 
     char *title = argc > 1 ? argv[1] : "Bezier";
     struct AppData data = {
@@ -190,6 +205,9 @@ int main(int argc, char **argv) {
         .mouse = { .posX = 0, .posY = 0 },
         .area = NULL,
     };
+
+    bezier_drawer_new_curve(&data.drawer);
+    bezier_curve_add_point(data.drawer.curves, data.mouse);
 
     g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
     int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);
