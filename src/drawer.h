@@ -17,7 +17,7 @@ typedef struct {
     size_t capacity;
     size_t resolution;
     cairo_pattern_t *curvePattern;
-    cairo_pattern_t *pointPattern;
+    cairo_pattern_t *gridPattern;
 } BezierDrawableCurve2D;
 
 typedef struct {
@@ -29,7 +29,13 @@ typedef struct {
 
 int bezier_curve2d_init(BezierDrawableCurve2D *curve);
 
+BezierDrawableCurve2D *bezier_drawer_curve_at(BezierDrawer *drawer, size_t index);
 
+int bezier_curve_set_cpattern(BezierDrawableCurve2D *curve, cairo_pattern_t *pattern);
+
+int bezier_curve_set_gpattern(BezierDrawableCurve2D *curve, cairo_pattern_t *pattern);
+
+void bezier_curve_draw(BezierDrawableCurve2D *curve, cairo_t *cro);
     
 int bezier_drawer_draw(BezierDrawer *drawer, size_t index, cairo_t *cro);
 

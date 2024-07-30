@@ -15,36 +15,6 @@ static void appdata_cleanup(struct AppData *data) {
     bezier_drawer_cleanup(&data->drawer);
 }
 
-static void draw_points(cairo_t *cro, size_t count, BezierPoint2D *points) {
-    if (count <= 1) {
-        return;
-    }
-
-    cairo_new_path(cro);
-    cairo_move_to(cro, points->posX, points->posY);
-    points++;
-
-    for (int i = 1; i < count; i++, points++) {
-        cairo_line_to(cro, points->posX, points->posY);
-    }
-
-    cairo_stroke(cro);
-}
-
-static void draw_curve(
-        cairo_t *cro,
-        size_t count,
-        BezierPoint2D *controls,
-        size_t resolution) {
-    if (count <= 1) {
-        return;
-    }
-
-    BezierPoint2D results[resolution];
-    bezier_bulk(count, controls, resolution, results);
-    draw_points(cro, resolution, results);
-}
-
 static void draw_function(
         GtkDrawingArea *area,
         cairo_t *cro,
@@ -56,11 +26,7 @@ static void draw_function(
     BezierDrawer *drawer = &appData->drawer;
 
     for (int i = 0; i < drawer->count; i++) {
-        BezierDrawableCurve2D *curve = drawer->curves + i;
-        cairo_set_source_rgb(cro, 0, 0, 0);
-        draw_points(cro, curve->count, curve->controls);
-        cairo_set_source_rgb(cro, 0.8, 0., 0.8);
-        draw_curve(cro, curve->count, curve->controls, curve->resolution);
+        bezier_drawer_draw(drawer, i, cro);
     }
 }
 
@@ -208,6 +174,10 @@ int main(int argc, char **argv) {
 
     bezier_drawer_new_curve(&data.drawer);
     bezier_curve_add_point(data.drawer.curves, data.mouse);
+    cairo_pattern_t *curvePattern = cairo_pattern_create_rgb(0.8, 0, 0.8);
+    cairo_pattern_t *gridPattern  = cairo_pattern_create_rgb(0, 0, 0);
+    bezier_curve_set_cpattern(bezier_drawer_curve_at(&data.drawer, 0), curvePattern);
+    bezier_curve_set_gpattern(bezier_drawer_curve_at(&data.drawer, 0), gridPattern);
 
     g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
     int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);
