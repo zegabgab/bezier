@@ -81,8 +81,13 @@ static void add_point(
     (void) self;
     (void) n_press;
     data->mouse = (BezierPoint2D) { .posX = x, .posY = y };
+    BezierDrawableCurve2D *curve = bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1);
     if (n_press == 2) {
         data->drawer.isEditing = 0;
+        if (curve->count > 0) {
+            curve->count--;
+            gtk_widget_queue_draw(GTK_WIDGET(data->area));
+        }
         return;
     }
     if (!data->drawer.isEditing) {
