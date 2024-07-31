@@ -33,18 +33,21 @@ static void draw_function(
 static void add_curve(GtkButton *self, gpointer user_data) {
     (void) self;
     struct AppData *data = user_data;
-    bezier_drawer_new_curve(&data->drawer);
+    BezierDrawableCurve2D *curve = bezier_drawer_new_curve(&data->drawer);
+    if (!curve) {
+        return;
+    }
     cairo_pattern_t *curvePattern = cairo_pattern_create_rgb(0.8, 0, 0.8);
     cairo_pattern_t *gridPattern  = cairo_pattern_create_rgb(0, 0, 0);
     bezier_curve_set_cpattern(
-            bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1),
+            curve,
             curvePattern);
     bezier_curve_set_gpattern(
-            bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1),
+            curve,
             gridPattern);
     data->drawer.isEditing = 1;
     bezier_curve_add_point(
-            bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1),
+            curve,
             data->mouse);
 }
 

@@ -39,7 +39,7 @@ void bezier_curve_draw(BezierDrawableCurve2D *curve, cairo_t *cro);
     
 int bezier_drawer_draw(BezierDrawer *drawer, size_t index, cairo_t *cro);
 
-int bezier_drawer_new_curve(BezierDrawer *drawer);
+BezierDrawableCurve2D *bezier_drawer_new_curve(BezierDrawer *drawer);
 
 int bezier_curve_add_point(BezierDrawableCurve2D *curve, BezierPoint2D point);
 

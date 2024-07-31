@@ -80,35 +80,32 @@ int bezier_drawer_draw(BezierDrawer *drawer, size_t index, cairo_t *cro) {
     return 0;
 }
 
-int bezier_drawer_new_curve(BezierDrawer *drawer) {
+BezierDrawableCurve2D *bezier_drawer_new_curve(BezierDrawer *drawer) {
     if (drawer->count >= drawer->capacity) {
         int error;
         DOUBLE_CAPACITY(drawer->curves, drawer->capacity, error);
-        if (error != 0) {
-            return error;
+        if (error) {
+            return NULL;
         }
     }
 
-    static const unsigned int INITIAL_CAPACITY = 4;
     BezierDrawableCurve2D curve = {
-        .controls = malloc(INITIAL_CAPACITY * sizeof(BezierPoint2D)),
+        .controls = NULL,
         .count = 0,
-        .capacity = INITIAL_CAPACITY,
+        .capacity = 0,
         .resolution = DEFAULT_RESOLUTION,
     };
-    if (!curve.controls) {
-        return errno;
-    }
 
+    size_t index = drawer->count;
     drawer->curves[drawer->count++] = curve;
-    return 0;
+    return bezier_drawer_curve_at(drawer, index);
 }
 
 int bezier_curve_add_point(BezierDrawableCurve2D *curve, BezierPoint2D point) {
     if (curve->count >= curve->capacity) {
         int error;
         DOUBLE_CAPACITY(curve->controls, curve->capacity, error);
-        if (error != 0) {
+        if (error) {
             return error;
         }
     }
