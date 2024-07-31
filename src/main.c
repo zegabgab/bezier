@@ -30,6 +30,24 @@ static void draw_function(
     }
 }
 
+static void add_curve(GtkButton *self, gpointer user_data) {
+    (void) self;
+    struct AppData *data = user_data;
+    bezier_drawer_new_curve(&data->drawer);
+    cairo_pattern_t *curvePattern = cairo_pattern_create_rgb(0.8, 0, 0.8);
+    cairo_pattern_t *gridPattern  = cairo_pattern_create_rgb(0, 0, 0);
+    bezier_curve_set_cpattern(
+            bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1),
+            curvePattern);
+    bezier_curve_set_gpattern(
+            bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1),
+            gridPattern);
+    data->drawer.isEditing = 1;
+    bezier_curve_add_point(
+            bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1),
+            data->mouse);
+}
+
 static void print_motion(
         GtkEventControllerMotion *self,
         double x,
@@ -38,6 +56,9 @@ static void print_motion(
     (void) self;
     struct AppData *appData = data;
     appData->mouse = (BezierPoint2D) { .posX = x, .posY = y };
+    if (!appData->drawer.isEditing) {
+        return;
+    }
     bezier_drawer_edit_last(&appData->drawer, appData->mouse);
     gtk_widget_queue_draw(GTK_WIDGET(appData->area));
 }
@@ -57,6 +78,13 @@ static void add_point(
     (void) self;
     (void) n_press;
     data->mouse = (BezierPoint2D) { .posX = x, .posY = y };
+    if (n_press == 2) {
+        data->drawer.isEditing = 0;
+        return;
+    }
+    if (!data->drawer.isEditing) {
+        return;
+    }
     bezier_curve_add_point(data->drawer.curves + data->drawer.count - 1, data->mouse);
     gtk_widget_queue_draw(GTK_WIDGET(data->area));
 }
@@ -95,6 +123,7 @@ static GtkWidget *new_curve_button(struct AppData *data) {
     if (!button) {
         return NULL;
     }
+    g_signal_connect(GTK_BUTTON(button), "clicked", G_CALLBACK(add_curve), data);
     return button;
 }
 
@@ -162,6 +191,7 @@ int main(int argc, char **argv) {
         .curves = NULL,
         .count = 0,
         .capacity = 0,
+        .isEditing = 0,
     };
 
     char *title = argc > 1 ? argv[1] : "Bezier";
@@ -172,12 +202,6 @@ int main(int argc, char **argv) {
         .area = NULL,
     };
 
-    bezier_drawer_new_curve(&data.drawer);
-    bezier_curve_add_point(data.drawer.curves, data.mouse);
-    cairo_pattern_t *curvePattern = cairo_pattern_create_rgb(0.8, 0, 0.8);
-    cairo_pattern_t *gridPattern  = cairo_pattern_create_rgb(0, 0, 0);
-    bezier_curve_set_cpattern(bezier_drawer_curve_at(&data.drawer, 0), curvePattern);
-    bezier_curve_set_gpattern(bezier_drawer_curve_at(&data.drawer, 0), gridPattern);
 
     g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
     int exit_status = g_application_run(G_APPLICATION(app), 0, NULL);

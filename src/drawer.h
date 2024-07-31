@@ -24,7 +24,7 @@ typedef struct {
     size_t count;
     size_t capacity;
     BezierDrawableCurve2D *curves;
-    int isActive;
+    int isEditing;
 } BezierDrawer;
 
 int bezier_curve2d_init(BezierDrawableCurve2D *curve);
