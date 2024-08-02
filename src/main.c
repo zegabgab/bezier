@@ -91,14 +91,12 @@ static void handle_click(
         double x,
         double y,
         struct AppData *data) {
-    const guint LEFT = 1;
-    const guint RIGHT = 3;
     guint button = gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(self));
 
-    if (button == LEFT) {
+    if (button == GDK_BUTTON_PRIMARY) {
         add_point(&data->drawer, x, y);
         gtk_widget_queue_draw(GTK_WIDGET(data->area));
-    } else if (button == RIGHT) {
+    } else if (button == GDK_BUTTON_SECONDARY) {
         end_edit(&data->drawer);
     }
 }
