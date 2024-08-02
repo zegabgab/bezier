@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include "linspace.h"
 
 static inline double lerp_double(double start, double end, double factor) {
     return start + (end - start) * factor;
@@ -36,9 +37,10 @@ BezierPoint2D *bezier_bulk(
         const BezierPoint2D *controlPoints,
         size_t resultPointCount,
         BezierPoint2D *result) {
-    for (size_t i = 0; i < resultPointCount; i++) {
+    double x;
+    for_linspace(0., 1., resultPointCount, x) {
         result[i] = bezier_evaluate(
-                controlPointCount, controlPoints, ((double) i) / (double) (resultPointCount - 1));
+                controlPointCount, controlPoints, x);
     }
     return result;
 }
