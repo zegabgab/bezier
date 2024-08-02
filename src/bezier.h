@@ -28,6 +28,10 @@ BezierPoint2D *bezier_bulk(
         size_t resultPointCount,
         BezierPoint2D *result);
 
+void bezier_add_degree(
+        size_t count,
+        BezierPoint2D *points);
+
 #ifdef __cplusplus
 }
 #endif

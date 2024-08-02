@@ -85,12 +85,24 @@ static void end_edit(BezierDrawer *drawer) {
     drawer->isEditing = 0;
 }
 
+static void add_degree(BezierDrawer *drawer) {
+    if (!drawer->isEditing) {
+        return;
+    }
+    BezierDrawableCurve2D *curve = bezier_drawer_curve_at(drawer, drawer->count - 1);
+    if (!curve || bezier_curve_add_point(curve, (BezierPoint2D) { .posX = 0, .posY = 0})) {
+        return;
+    }
+    bezier_add_degree(curve->count - 1, curve->controls);
+}
+
 static void handle_click(
         GtkGestureClick *self,
         int n_press,
         double x,
         double y,
         struct AppData *data) {
+    (void) n_press;
     guint button = gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(self));
 
     if (button == GDK_BUTTON_PRIMARY) {
@@ -98,6 +110,9 @@ static void handle_click(
         gtk_widget_queue_draw(GTK_WIDGET(data->area));
     } else if (button == GDK_BUTTON_SECONDARY) {
         end_edit(&data->drawer);
+    } else if (button == GDK_BUTTON_MIDDLE) {
+        add_degree(&data->drawer);
+        gtk_widget_queue_draw(GTK_WIDGET(data->area));
     }
 }
 

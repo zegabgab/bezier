@@ -42,3 +42,15 @@ BezierPoint2D *bezier_bulk(
     }
     return result;
 }
+
+void bezier_add_degree(size_t count, BezierPoint2D *points) {
+    if (count == 0) {
+        return;
+    }
+    
+    points[count] = points[count - 1];
+    for (size_t i = count - 1; i > 0; i--) {
+        double weight = (double) i / ((double) count);
+        points[i] = lerp(points + i, points + i - 1, weight);
+    }
+}
