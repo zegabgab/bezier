@@ -72,29 +72,35 @@ static GtkEventController *paint_controller(struct AppData *data) {
     return controller;
 }
 
-static void add_point(
+static void add_point(BezierDrawer *drawer, double x, double y) {
+    if (!drawer->isEditing) {
+        return;
+    }
+    bezier_curve_add_point(
+            bezier_drawer_curve_at(drawer, drawer->count - 1),
+            (BezierPoint2D) { .posX = x, .posY = y });
+}
+
+static void end_edit(BezierDrawer *drawer) {
+    drawer->isEditing = 0;
+}
+
+static void handle_click(
         GtkGestureClick *self,
         int n_press,
         double x,
         double y,
         struct AppData *data) {
-    (void) self;
-    (void) n_press;
-    data->mouse = (BezierPoint2D) { .posX = x, .posY = y };
-    BezierDrawableCurve2D *curve = bezier_drawer_curve_at(&data->drawer, data->drawer.count - 1);
-    if (n_press == 2) {
-        data->drawer.isEditing = 0;
-        if (curve->count > 0) {
-            curve->count--;
-            gtk_widget_queue_draw(GTK_WIDGET(data->area));
-        }
-        return;
+    const guint LEFT = 1;
+    const guint RIGHT = 3;
+    guint button = gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(self));
+
+    if (button == LEFT) {
+        add_point(&data->drawer, x, y);
+        gtk_widget_queue_draw(GTK_WIDGET(data->area));
+    } else if (button == RIGHT) {
+        end_edit(&data->drawer);
     }
-    if (!data->drawer.isEditing) {
-        return;
-    }
-    bezier_curve_add_point(data->drawer.curves + data->drawer.count - 1, data->mouse);
-    gtk_widget_queue_draw(GTK_WIDGET(data->area));
 }
 
 static GtkGesture *click_controller(struct AppData *data) {
@@ -102,7 +108,8 @@ static GtkGesture *click_controller(struct AppData *data) {
     if (!click) {
         return NULL;
     }
-    g_signal_connect(click, "pressed", G_CALLBACK(add_point), data);
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click), 0);
+    g_signal_connect(click, "pressed", G_CALLBACK(handle_click), data);
     return click;
 }
 
