@@ -37,8 +37,7 @@ BezierPoint2D *bezier_bulk(
         const BezierPoint2D *controlPoints,
         size_t resultPointCount,
         BezierPoint2D *result) {
-    double x;
-    for_linspace(0., 1., resultPointCount, x) {
+    for_linspace(0., 1., resultPointCount, i, x) {
         result[i] = bezier_evaluate(
                 controlPointCount, controlPoints, x);
     }
