@@ -20,19 +20,18 @@ static void draw_function(
         cairo_t *cro,
         int width,
         int height,
-        gpointer data) {
+        gpointer user_data) {
     (void) area;
-    struct AppData *appData = data;
-    BezierDrawer *drawer = &appData->drawer;
+    struct AppData *data = user_data;
+    BezierDrawer *drawer = &data->drawer;
 
     for (int i = 0; i < drawer->count; i++) {
         bezier_drawer_draw(drawer, i, cro);
     }
 }
 
-static void add_curve(GtkButton *self, gpointer user_data) {
+static void add_curve(GtkButton *self, struct AppData *data) {
     (void) self;
-    struct AppData *data = user_data;
     BezierDrawableCurve2D *curve = bezier_drawer_new_curve(&data->drawer);
     if (!curve) {
         return;
@@ -51,7 +50,7 @@ static void add_curve(GtkButton *self, gpointer user_data) {
             data->mouse);
 }
 
-static void print_motion(
+static void handle_motion(
         GtkEventControllerMotion *self,
         double x,
         double y,
@@ -68,7 +67,7 @@ static void print_motion(
 
 static GtkEventController *paint_controller(struct AppData *data) {
     GtkEventController *controller = gtk_event_controller_motion_new();
-    g_signal_connect(controller, "motion", G_CALLBACK(print_motion), data);
+    g_signal_connect(controller, "motion", G_CALLBACK(handle_motion), data);
     return controller;
 }
 
