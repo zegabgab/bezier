@@ -5,8 +5,22 @@ BezierPoint2D bezier_curve_evaluate(const BezierCurve2D *curve, double weight) {
     return bezier_evaluate(curve->count, curve->controls, weight);
 }
 
+int bezier_curve_evaluate_safe(const BezierCurve2D *curve, double weight, BezierPoint2D *result) {
+    if (curve == NULL) {
+        return 1;
+    }
+    
+    *result = bezier_curve_evaluate(curve, weight);
+    return 0;
+}
+
 int bezier_curve_bulk(const BezierCurve2D *curve, size_t count, BezierPoint2D *buffer) {
     return bezier_bulk(curve->count, curve->controls, count, buffer) == NULL;
+}
+
+int bezier_curve_bulk_safe(const BezierCurve2D *curve, size_t count, BezierPoint2D *buffer) {
+    return curve == NULL || buffer == NULL ? 1
+        : bezier_curve_bulk(curve, count, buffer);
 }
 
 BezierPoint2D bezier_curve_control(const BezierCurve2D *curve, ssize_t index) {

@@ -47,6 +47,15 @@ typedef struct {
 BezierPoint2D bezier_curve_evaluate(const BezierCurve2D *curve, double weight);
 
 /**
+ * Evaluates curve at weight, or returns an error if curve is null.
+ *
+ * @param[in]  curve  The curve to be evaluated
+ * @param[in]  weight The parameter at which to evaluate the curve, usually between 0 and 1
+ * @param[out] result The result of the calculation
+ */
+int bezier_curve_evaluate_safe(const BezierCurve2D *curve, double weight, BezierPoint2D *result);
+
+/**
  * Evaluates curve at [count] evenly spaced weights, starting with 0 and ending with 1,
  * and places the results in [buffer].
  *
@@ -56,6 +65,16 @@ BezierPoint2D bezier_curve_evaluate(const BezierCurve2D *curve, double weight);
  * @pre curve != NULL && buffer != NULL
  */
 int bezier_curve_bulk(const BezierCurve2D *curve, size_t count, BezierPoint2D *buffer);
+
+/**
+ * Evaluates curve at count evenly spaced weights, or returns an error
+ * if curve or buffer are null.
+ *
+ * @param[in]  curve  The curve to be evaluated
+ * @param[in]  count  The number of points to be calculated
+ * @param[out] buffer The array where the results of the evaluations are stored
+ */
+int bezier_curve_bulk_safe(const BezierCurve2D *curve, size_t count, BezierPoint2D *buffer);
 
 /**
  * Returns the indexth control point of curve. Counts backwards if index is negative.
