@@ -52,6 +52,8 @@ BezierPoint2D bezier_curve_evaluate(const BezierCurve2D *curve, double weight);
  * @param[in]  curve  The curve to be evaluated
  * @param[in]  weight The parameter at which to evaluate the curve, usually between 0 and 1
  * @param[out] result The result of the calculation
+ * 
+ * @return 0 on success, 1 on error
  */
 int bezier_curve_evaluate_safe(const BezierCurve2D *curve, double weight, BezierPoint2D *result);
 
@@ -63,6 +65,8 @@ int bezier_curve_evaluate_safe(const BezierCurve2D *curve, double weight, Bezier
  * @param[in]  count  The number of points to be calculated
  * @param[out] buffer The array where the results of the evaluations are stored
  * @pre curve != NULL && buffer != NULL
+ * 
+ * @return 0 on success, 1 on error
  */
 int bezier_curve_bulk(const BezierCurve2D *curve, size_t count, BezierPoint2D *buffer);
 
@@ -73,6 +77,8 @@ int bezier_curve_bulk(const BezierCurve2D *curve, size_t count, BezierPoint2D *b
  * @param[in]  curve  The curve to be evaluated
  * @param[in]  count  The number of points to be calculated
  * @param[out] buffer The array where the results of the evaluations are stored
+ * 
+ * @return 0 on success, 1 on error
  */
 int bezier_curve_bulk_safe(const BezierCurve2D *curve, size_t count, BezierPoint2D *buffer);
 
@@ -81,23 +87,53 @@ int bezier_curve_bulk_safe(const BezierCurve2D *curve, size_t count, BezierPoint
  *
  * @param[in] curve The curve whose control point is sought after
  * @param[in] index The index of the wanted control point
- * @pre (index >= 0 && index < curve->count) || (index < 0 && -index <= curve->count)
+ * @pre index < curve->count && -index <= curve->count
  */
 BezierPoint2D bezier_curve_control(const BezierCurve2D *curve, ssize_t index);
+
+/**
+ * Gets the indexth control point of curve, or returns an error if curve is null
+ * or index is out of bounds.
+ *
+ * @param[in]  curve The curve whose control point is sought after
+ * @param[in]  index The index of the wanted control point
+ * @param[out] point The control point
+ * 
+ * @return 0 on success, 1 on error
+ */
+int bezier_curve_control_safe(const BezierCurve2D *curve, ssize_t index, BezierPoint2D *point);
 
 /**
  * Appends the given point to the end of curve.
  *
  * @pre curve != NULL
+ * 
+ * @return 0 on success, > 0 on error
  */
 int bezier_curve_append(BezierCurve2D *curve, BezierPoint2D point);
+
+/**
+ * Appends the given point to the end of curve, or returns and error if curve is null.
+ *
+ * @return 0 on success, > 0 on error
+ */
+int bezier_curve_append_safe(BezierCurve2D *curve, BezierPoint2D point);
 
 /**
  * Appends the point (x, y) to the end of curve.
  *
  * @pre curve != NULL
+ * 
+ * @return 0 on success, > 0 on error
  */
 int bezier_curve_append_coords(BezierCurve2D *curve, double x, double y);
+
+/**
+ * Appends the point (x, y) to the end of curve, or returns an error if curve is null.
+ * 
+ * @return 0 on success, > 0 on error
+ */
+int bezier_curve_append_coords_safe(BezierCurve2D *curve, double x, double y);
 
 #ifdef __cplusplus
 }

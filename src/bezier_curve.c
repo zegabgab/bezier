@@ -27,6 +27,15 @@ BezierPoint2D bezier_curve_control(const BezierCurve2D *curve, ssize_t index) {
     return (curve->controls + (index >= 0 ? 0 : curve->count))[index];
 }
 
+int bezier_curve_control_safe(const BezierCurve2D *curve, ssize_t index, BezierPoint2D *point) {
+    if (curve == NULL || index >= curve->count || -index > curve->count) {
+        return 1;
+    }
+    
+    *point = bezier_curve_control(curve, index);
+    return 0;
+}
+
 int bezier_curve_append(BezierCurve2D *curve, BezierPoint2D point) {
     if (curve->count >= curve->capacity) {
         int error;
@@ -40,6 +49,14 @@ int bezier_curve_append(BezierCurve2D *curve, BezierPoint2D point) {
     return 0;
 }
 
+int bezier_curve_append_safe(BezierCurve2D *curve, BezierPoint2D point) {
+    return curve == NULL ? 1 : bezier_curve_append(curve, point);
+}
+
 int bezier_curve_append_coords(BezierCurve2D *curve, double x, double y) {
     return bezier_curve_append(curve, (BezierPoint2D) { .posX = x, .posY = y });
+}
+
+int bezier_curve_append_coords_safe(BezierCurve2D *curve, double x, double y) {
+    return curve == NULL ? 1 : bezier_curve_append_coords(curve, x, y);
 }
