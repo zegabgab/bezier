@@ -34,8 +34,10 @@ typedef struct {
  * Finalizes a BezierCurve2D
  */
 #define BEZIER_CURVE2D_FIN(curve)                               \
-    free((curve).controls);                                     \
-    BEZIER_CURVE2D_INIT(curve);
+    do {                                                        \
+        free((curve).controls);                                 \
+        BEZIER_CURVE2D_INIT(curve);                             \
+    } while (0)
 
 /**
  * Evaluates curve at weight.
