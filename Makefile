@@ -23,6 +23,10 @@ $(MAIN): $(OBJS)
 	@mkdir -p $(@D)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
-$(OBJ)/%.o: $(SRC)/%.c
+$(OBJ)/main.o: $(SRC)/main.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ -c $?
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+$(OBJ)/%.o: $(SRC)/%.c $(SRC)/%.h
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ -c $<
