@@ -2,6 +2,7 @@
 #include <gtk/gtk.h>
 
 #include "bezier.h"
+#include "config.h"
 #include "drawer.h"
 
 struct AppData {
@@ -9,6 +10,7 @@ struct AppData {
     char *title;
     BezierPoint2D mouse;
     GtkDrawingArea *area;
+    Config config;
 };
 
 static void appdata_cleanup(struct AppData *data) {
@@ -36,8 +38,14 @@ static void add_curve(GtkButton *self, struct AppData *data) {
     if (!curve) {
         return;
     }
-    cairo_pattern_t *curvePattern = cairo_pattern_create_rgb(0.8, 0, 0.8);
-    cairo_pattern_t *gridPattern  = cairo_pattern_create_rgb(0, 0, 0);
+    cairo_pattern_t *curvePattern = cairo_pattern_create_rgb(
+            data->config.curveColor.red,
+            data->config.curveColor.green,
+            data->config.curveColor.blue);
+    cairo_pattern_t *gridPattern  = cairo_pattern_create_rgb(
+            data->config.gridColor.red,
+            data->config.gridColor.green,
+            data->config.gridColor.blue);
     bezier_curve_set_cpattern(
             curve,
             curvePattern);
@@ -228,6 +236,10 @@ int main(int argc, char **argv) {
         .mouse = { .posX = 0, .posY = 0 },
         .area = NULL,
     };
+
+    if (parseConfig(".bezierconfig", &data.config)) {
+        perror("Error parsing config");
+    }
 
 
     g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
